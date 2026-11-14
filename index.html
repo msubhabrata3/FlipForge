@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f4f0">
+    <meta name="theme-color" content="#141914" media="(prefers-color-scheme: dark)">
+    <title>FlipForge — Flashcards that stick</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="FlipForge home">
+        <span class="brand-mark" aria-hidden="true">F</span>
+        <span>FlipForge</span>
+      </a>
+      <p class="header-note">Make a little progress every day.</p>
+      <button class="button button-primary header-add" id="add-deck-button" type="button">
+        <span aria-hidden="true">+</span> New Deck
+      </button>
+    </header>
+
+    <div class="app-layout">
+      <aside class="sidebar" aria-labelledby="decks-heading">
+        <div class="sidebar-heading">
+          <div>
+            <p class="eyebrow">Your library</p>
+            <h2 id="decks-heading">Decks</h2>
+          </div>
+          <button class="icon-button" id="sidebar-add-deck" type="button" aria-label="Create a deck">+</button>
+        </div>
+        <nav aria-label="Flashcard decks">
+          <ul class="deck-list" id="deck-list"></ul>
+        </nav>
+        <p class="sidebar-hint">Pick a deck to see your cards.</p>
+      </aside>
+
+      <main class="main-content" id="main-content">
+        <section id="deck-view" aria-labelledby="active-deck-title">
+          <div class="deck-heading">
+            <div>
+              <p class="eyebrow" id="deck-count-label">Your study space</p>
+              <h1 id="active-deck-title">Welcome to FlipForge</h1>
+              <p class="deck-description" id="active-deck-description"></p>
+            </div>
+            <button class="button button-primary" id="start-study-button" type="button" disabled>
+              <span aria-hidden="true">▷</span> <span id="study-button-label">Study all cards</span>
+            </button>
+          </div>
+
+          <div class="toolbar">
+            <div class="search-field">
+              <label class="sr-only" for="card-search">Search cards</label>
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <input id="card-search" type="search" placeholder="Search cards..." autocomplete="off">
+              <kbd class="search-shortcut" aria-hidden="true">/</kbd>
+            </div>
+            <button class="button button-secondary" id="shuffle-deck-button" type="button" aria-label="Shuffle visible cards and start studying" disabled>
+              <span aria-hidden="true">⤨</span> Shuffle
+            </button>
+            <button class="button button-secondary" id="add-card-button" type="button" disabled>
+              <span aria-hidden="true">+</span> New Card
+            </button>
+          </div>
+
+          <section class="card-grid" id="card-grid" aria-label="Cards in selected deck" aria-live="polite"></section>
+          <div class="empty-state" id="empty-state" hidden>
+            <div class="empty-illustration" aria-hidden="true"><span>?</span></div>
+            <p class="eyebrow">A fresh start</p>
+            <h2 id="empty-state-title">Your FlipForge starts here</h2>
+            <p id="empty-state-copy">Create a deck, add a few flashcards, and start learning at your own pace.</p>
+            <button class="button button-primary" id="empty-state-action" type="button">Create your first deck</button>
+          </div>
+        </section>
+
+        <section class="study-view" id="study-view" aria-labelledby="study-heading" hidden>
+          <div class="study-topbar">
+            <button class="text-button" id="exit-study-button" type="button"><span aria-hidden="true">←</span> Back to deck</button>
+            <p class="study-deck-name" id="study-deck-name"></p>
+          </div>
+          <div class="study-content">
+            <div class="study-heading-row">
+              <div>
+                <p class="eyebrow">Focus time</p>
+                <h1 id="study-heading">Study mode</h1>
+              </div>
+              <p class="progress-label" id="study-progress">Card 1 of 1</p>
+            </div>
+            <button class="card-scene" id="study-card" type="button" aria-label="Flip flashcard">
+              <span class="card" id="study-card-inner">
+                <span class="card-face card-front">
+                  <span class="card-face-label">Front <span aria-hidden="true">✦</span></span>
+                  <span class="study-card-text" id="study-front"></span>
+                  <span class="flip-hint">Tap or press Space to flip</span>
+                </span>
+                <span class="card-face card-back">
+                  <span class="card-face-label">Back <span aria-hidden="true">✧</span></span>
+                  <span class="study-card-text" id="study-back"></span>
+                  <span class="flip-hint">Tap or press Space to flip back</span>
+                </span>
+              </span>
+            </button>
+            <div class="study-controls" role="group" aria-label="Study controls">
+              <button class="button button-secondary" id="previous-card-button" type="button">← Previous</button>
+              <button class="button button-quiet" id="flip-card-button" type="button">Flip</button>
+              <button class="button button-secondary" id="next-card-button" type="button">Next →</button>
+            </div>
+            <div class="card-management-controls" role="group" aria-label="Current card actions">
+              <button class="button button-secondary" id="edit-current-card-button" type="button" aria-label="Edit current card">Edit Card</button>
+              <button class="button button-danger" id="delete-current-card-button" type="button" aria-label="Delete current card">Delete Card</button>
+            </div>
+            <button class="shuffle-button" id="shuffle-cards-button" type="button"><span aria-hidden="true">⤨</span> Shuffle cards</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <p class="sr-only" id="announcements" aria-live="polite" aria-atomic="true"></p>
+
+    <dialog class="form-dialog" id="deck-dialog" aria-modal="true" aria-labelledby="deck-dialog-title">
+      <form id="deck-form">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">Your library</p>
+            <h2 id="deck-dialog-title">Create a deck</h2>
+          </div>
+          <button class="icon-button" type="button" data-close-dialog aria-label="Close dialog">×</button>
+        </div>
+        <input id="deck-id" type="hidden">
+        <label for="deck-title">Deck name</label>
+        <input id="deck-title" name="name" type="text" maxlength="80" required placeholder="e.g. Spanish basics">
+        <label for="deck-description">Description <span class="optional-label">Optional</span></label>
+        <textarea id="deck-description" name="description" rows="3" maxlength="240" placeholder="What are you learning?"></textarea>
+        <div class="dialog-actions">
+          <button class="button button-danger" id="delete-deck-button" type="button" hidden>Delete deck</button>
+          <span class="action-spacer"></span>
+          <button class="button button-secondary" type="button" data-close-dialog>Cancel</button>
+          <button class="button button-primary" id="save-deck-button" type="submit">Create deck</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="form-dialog" id="card-dialog" aria-modal="true" aria-labelledby="card-dialog-title">
+      <form id="card-form">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">Flashcard</p>
+            <h2 id="card-dialog-title">Add a card</h2>
+          </div>
+          <button class="icon-button" type="button" data-close-dialog aria-label="Close dialog">×</button>
+        </div>
+        <input id="card-id" type="hidden">
+        <label for="card-front">Front</label>
+        <textarea id="card-front" name="front" rows="3" maxlength="1000" required placeholder="Question or prompt"></textarea>
+        <label for="card-back">Back</label>
+        <textarea id="card-back" name="back" rows="4" maxlength="2000" required placeholder="Answer or explanation"></textarea>
+        <div class="dialog-actions">
+          <button class="button button-danger" id="delete-card-button" type="button" hidden>Delete card</button>
+          <span class="action-spacer"></span>
+          <button class="button button-secondary" type="button" data-close-dialog>Cancel</button>
+          <button class="button button-primary" id="save-card-button" type="submit">Add card</button>
+        </div>
+      </form>
+    </dialog>
+
+    <footer class="site-footer">
+      <span class="footer-mark" aria-hidden="true">F</span>
+      <span>Select a deck, add cards, then study and flip. Shortcuts: / search · Space/Enter flip or activate focused controls · ←/→ navigate · Esc exit study.</span>
+    </footer>
+  </body>
+</html>
